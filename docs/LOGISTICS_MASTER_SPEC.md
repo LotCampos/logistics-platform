@@ -221,22 +221,93 @@ PENDIENTE -> OMITIDA solo con motivo obligatorio.
 
 ## 8. Roles y segregación
 
-Roles mínimos funcionales:
-- LOGISTICS_ADMIN
-- LOGISTICS_PLANNER
-- FLEET_MANAGER
-- TRAVEL_AUTHORIZER
-- EXPENSE_SETTLEMENT
-- DISPATCHER/COORDINATOR
-- FIELD_OPERATOR
-- AUDITOR/READ_ONLY
+Logistics utilizará un modelo de roles reducido y orientado a responsabilidades reales de operación. No se crearán roles independientes para cada función que actualmente desempeña una misma persona.
 
-Segregación:
-- quien solicita/programa no debe aprobar su propio presupuesto cuando la política exija separación;
-- quien registra un gasto no debe modificar la evidencia aprobatoria de ese gasto;
-- quien ejecuta servicio no debe alterar retrospectivamente la programación aprobada sin permiso;
-- Fleet Manager administra disponibilidad/mantenimiento, no aprueba gastos financieros por defecto;
-- Auditor es de consulta/auditoría.
+Roles funcionales:
+
+### LOGISTICS_MANAGER
+
+Responsable operativo integral de Logistics.
+
+Permisos funcionales:
+- administrar la programación de servicios;
+- crear, modificar y reprogramar servicios;
+- planificar viajes y rutas;
+- administrar asignaciones;
+- administrar la flota;
+- registrar kilometraje;
+- gestionar combustible;
+- gestionar mantenimiento;
+- crear y administrar presupuestos de viáticos;
+- registrar y comprobar gastos;
+- adjuntar comprobantes;
+- gestionar salidas, llegadas y cierre operativo;
+- consultar dashboards e indicadores;
+- generar/solicitar documentos operativos.
+
+Este es el rol principal para la operación actual. Una misma persona puede ejecutar todas estas funciones sin cambiar de rol ni atravesar una segregación artificial por módulo.
+
+### LOGISTICS_AUTHORIZER
+
+Responsable de autorizar operaciones que requieran aprobación independiente.
+
+Permisos funcionales:
+- aprobar/rechazar presupuestos de viaje;
+- aprobar excepciones;
+- aprobar liquidaciones cuando la política administrativa lo requiera;
+- consultar la información necesaria para tomar la decisión.
+
+La existencia de este rol no implica que actualmente deba existir una persona dedicada exclusivamente a él. La autorización es una capacidad de workflow que puede asignarse a dirección, administración o a otro responsable cuando la política de la empresa lo determine.
+
+### AUDITOR
+
+Rol transversal de UI-CADO. No pertenece exclusivamente a Logistics.
+
+Debe poder consultar información e historial de los diferentes módulos según las políticas de auditoría, sin modificar la operación auditada.
+
+Logistics no crea un rol de auditoría paralelo.
+
+### READ_ONLY
+
+Rol opcional para usuarios que únicamente necesiten consultar información de Logistics.
+
+Permisos:
+- dashboards;
+- calendario;
+- rutas;
+- flota;
+- viajes;
+- viáticos;
+- reportes;
+- información operativa autorizada para consulta.
+
+### Roles que NO se implementarán
+
+No se crearán como roles independientes de Logistics:
+- LOGISTICS_ADMIN;
+- LOGISTICS_PLANNER;
+- FLEET_MANAGER;
+- EXPENSE_SETTLEMENT;
+- DISPATCHER/COORDINATOR;
+- FIELD_OPERATOR.
+
+Estas funciones forman parte del trabajo operativo del LOGISTICS_MANAGER o se resolverán mediante permisos y reglas de negocio cuando exista una necesidad concreta.
+
+### Principio de segregación
+
+La segregación de funciones se aplicará solamente cuando exista un requisito operativo, administrativo, financiero, de seguridad o de auditoría que la justifique.
+
+La arquitectura no utilizará roles como sustituto de los workflows.
+
+Ejemplos:
+
+- quien crea un presupuesto puede requerir una autorización independiente cuando la política lo establezca;
+- quien registra un gasto no debe poder alterar retrospectivamente la evidencia aprobatoria una vez cerrada/liquidada;
+- las correcciones posteriores de operaciones cerradas deben quedar controladas y auditadas;
+- una reasignación crítica puede requerir una transición autorizada;
+- el auditor transversal no modifica la operación auditada.
+
+Las reglas anteriores se implementarán mediante permisos, estados, transiciones, workflows y auditoría, no mediante proliferación de roles.
 
 La identidad real proviene de identity.User.
 
